@@ -1,0 +1,13 @@
+baseURL = "https://bein5678.github.io/"
+languageCode = "ko-kr"
+title = "My AI Gallery"
+theme = "gallery"
+
+[params]
+  description = "AI로 생성한 이미지 갤러리"
+
+[markup.goldmark.renderer]
+  unsafe = true
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
