@@ -1,46 +1,68 @@
-"""생성된 이미지를 Hugo content/ 폴더에 배치하고 git push 한다."""
+"""Hugo 사이트에 포스트 추가 + GitHub 푸시"""
 import os
 import re
+import shutil
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from dotenv import load_dotenv
 
-load_dotenv()
+_REPO = Path.home() / "gallery"
 
-_REPO_ROOT = Path(__file__).resolve().parent
-_CONTENT = _REPO_ROOT / "content"
-_USER = os.getenv("GITHUB_USERNAME", "bein5678")
-_PAT = os.getenv("GITHUB_PAT")
-_REPO = os.getenv("GITHUB_REPO", "bein5678/bein5678.github.io")
-_SITE = os.getenv("SITE_URL", "https://bein5678.github.io").rstrip("/")
 
 def _slugify(text: str) -> str:
-    text = re.sub(r"[^\w\s-]", "", text, flags=re.UNICODE).strip().lower()
-    text = re.sub(r"[\s_]+", "-", text)
-    return text[:40] or "post"
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9가-힣\s-]", "", text)
+    text = re.sub(r"\s+", "-", text).strip("-")
+    return text[:60] or "post"
 
-def publish(korean_keyword: str, english_prompt: str, image_bytes_path: Path) -> str:
+
+def publish(korean_keyword: str, english_prompt: str, image_path: str,
+            character: str = "", dialogue: str = "", tip: str = "") -> str:
     today = datetime.now().strftime("%Y-%m-%d")
-    slug = f"{today}-{_slugify(' '.join(english_prompt.split()[:6]))}"
-    post_dir = _CONTENT / slug
-    post_dir.mkdir(parents=True, exist_ok=True)
-    img_dest = post_dir / "image.png"
-    img_dest.write_bytes(Path(image_bytes_path).read_bytes())
-    safe_kw = korean_keyword.replace('"', "'")
-    safe_prompt = english_prompt.replace('"', "'").replace("\n", " ")
-    (post_dir / "index.md").write_text(
-        f'---\ntitle: "{safe_kw}"\ndate: {datetime.now().isoformat()}\ndraft: false\n'
-        f'description: "{safe_prompt[:160]}"\n---\n\n![{safe_kw}](image.png)\n',
-        encoding="utf-8",
+    slug_src = " ".join(english_prompt.split()[:6])
+    slug = f"{today}-{_slugify(slug_src)}"
+
+    folder = _REPO / "content" / slug
+    folder.mkdir(parents=True, exist_ok=True)
+
+    img_dst = folder / "cover.png"
+    shutil.copy(image_path, img_dst)
+
+    title = character if character else korean_keyword
+
+    body_parts = []
+    if character:
+        body_parts.append("## 🎭 캐릭터\n\n**" + character + "**\n")
+    if dialogue:
+        body_parts.append("## 💬 대사\n\n> " + dialogue + "\n")
+    if tip:
+        body_parts.append("## 💡 꿀팁\n\n" + tip + "\n")
+    if not body_parts:
+        body_parts.append(korean_keyword + "\n")
+
+    body = "\n".join(body_parts)
+
+    front_matter = (
+        "---\n"
+        f'title: "{title}"\n'
+        f"date: {datetime.now().isoformat()}\n"
+        "draft: false\n"
+        "cover:\n"
+        "  image: cover.png\n"
+        f'  alt: "{title}"\n'
+        "---\n\n"
     )
-    remote = f"https://{_USER}:{_PAT}@github.com/{_REPO}.git"
-    subprocess.run(["git", "-C", str(_REPO_ROOT), "add", "."], check=True)
+
+    md = front_matter + body
+
+    (folder / "index.md").write_text(md, encoding="utf-8")
+
+    subprocess.run(["git", "-C", str(_REPO), "add", "."], check=True)
     subprocess.run(
-        ["git", "-C", str(_REPO_ROOT), "commit", "-m", f"add post: {slug}"],
+        ["git", "-C", str(_REPO), "commit", "-m", f"add post: {slug}"],
         check=True,
     )
-    subprocess.run(
-        ["git", "-C", str(_REPO_ROOT), "push", remote, "main"], check=True
-    )
-    return f"{_SITE}/{slug}/"
+    subprocess.run(["git", "-C", str(_REPO), "push", "origin", "main"], check=True)
+
+    base_url = os.environ.get("SITE_BASE_URL", "https://bein5678.github.io").rstrip("/")
+    return f"{base_url}/{slug}/"
