@@ -22,7 +22,7 @@ def _slugify(text: str) -> str:
 
 def publish(korean_keyword: str, english_prompt: str, image_bytes_path: Path) -> str:
     today = datetime.now().strftime("%Y-%m-%d")
-    slug = f"{today}-{_slugify(korean_keyword)}"
+    slug = f"{today}-{_slugify(' '.join(english_prompt.split()[:6]))}"
     post_dir = _CONTENT / slug
     post_dir.mkdir(parents=True, exist_ok=True)
     img_dest = post_dir / "image.png"
