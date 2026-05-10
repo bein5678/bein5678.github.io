@@ -48,10 +48,22 @@ def generate_car_items(count: int = 9) -> list:
         "2. 대사는 10초 안에 읽을 수 있는 짧은 길이.\n"
         "3. 대사 형식: \"나는 '(사물명)'인데! 제발 ~~해줘!\" 같은 짜증/꾸짖는 톤.\n"
         "4. 꿀팁은 \"[사물명] ❌ 잘못된 행동 ➡️ ⭕ 올바른 행동 (이유)\" 형식.\n"
-        "5. 이미지 프롬프트는 영어로, Pixar 3D 애니메이션 스타일, 의인화된 캐릭터, "
-        "짜증난/화난 표정, 구체적인 포즈(팔로 X자, 팔짱, 손가락질 등), "
-        "9:16 세로 구도, 적절한 배경, 자연광, 시네마틱 라이팅 포함해 상세히 작성. "
-        "절대 짧게 쓰지 마.\n\n"
+        "5. 이미지 프롬프트는 영어로 작성. 반드시 다음 키워드를 모두 포함:\n"
+        "   - 'Pixar Cars movie style, glossy 3D animation, polished surfaces'\n"
+        "   - 'anthropomorphized character with expressive cartoon face, big round eyes, exaggerated emotions'\n"
+        "   - 'highly detailed, ultra-realistic textures, subsurface scattering, ray-traced reflections'\n"
+        "   - 'cinematic studio lighting, dramatic rim light, soft shadows, vibrant saturated colors'\n"
+        "   - 'shot on Arri Alexa, shallow depth of field, bokeh background, 8K resolution, octane render'\n"
+        "   - '9:16 vertical composition, centered character, dynamic pose'\n"
+        "   캐릭터의 짜증난/화난/당황한 표정과 구체적인 포즈(팔로 X자, 팔짱, 손가락질, "
+        "   이마 짚기 등)를 자세히 묘사.\n"
+        "   배경은 반드시 한국 실제 풍경으로 사실적으로 묘사 — 예: Korean street with "
+        "   hangul signboards, GS25/CU convenience store, Korean gas station (S-Oil, "
+        "   SK Energy, GS Caltex), Seoul apartment complex, Korean underground parking lot, "
+        "   Korean countryside road with rice fields, Hyundai/Kia cars in background, "
+        "   Korean traffic signs in hangul. 주변 사물(전봇대, 가로수, 도로 표지판, "
+        "   행인, 한국 차량 등)도 사실적으로 포함. 절대 짧게 쓰지 마. 최소 60단어 이상.\n\n"
+
         "출력은 오직 유효한 JSON 배열만. 마크다운/설명/주석 금지."
     )
 
@@ -64,8 +76,8 @@ def generate_car_items(count: int = 9) -> list:
         '  "character_en": "fuel pump nozzle handle",\n'
         '  "dialogue": "나는 \'주유구손잡이\'인데! 제발 천천히 당겨줘!",\n'
         '  "tip": "[주유 손잡이] ❌ 최고 속도로 당기기 ➡️ ⭕ 1단으로 천천히 (유증기 증발 최소화)",\n'
-        '  "image_prompt": "Pixar 3D animation style, anthropomorphized fuel pump nozzle character with angry face, crossed arms forming an X shape, frustrated expression, standing at a sunny gas station, realistic lighting, cinematic composition, 9:16 vertical aspect ratio, vibrant colors, detailed textures, shallow depth of field"\n'
-        "}"
+        '  "image_prompt": "Pixar Cars movie style, glossy 3D animation, polished metallic surfaces, anthropomorphized fuel pump nozzle character with expressive cartoon face, big round angry eyes, furrowed brows, mouth open shouting, crossed arms forming an X shape, frustrated body language, standing at a realistic Korean GS Caltex gas station with hangul signboards, chrome pumps, Hyundai Sonata and Kia K5 parked nearby, Korean street visible in background with apartment buildings and convenience store, asphalt road with lane markings, telephone poles and traffic signs in hangul, highly detailed ultra-realistic textures, subsurface scattering on plastic parts, ray-traced reflections, cinematic studio lighting with dramatic rim light, soft shadows, vibrant saturated colors, shot on Arri Alexa, shallow depth of field, bokeh background, 8K resolution, octane render, 9:16 vertical composition, centered character, dynamic pose"\n'
+
     )
 
     resp = _client.chat.completions.create(
